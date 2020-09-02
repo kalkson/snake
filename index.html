@@ -4,10 +4,19 @@
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
     <title>title</title>
     <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
     <script src="js/script.js"></script>
   </head>
   <body>
-    <canvas id="snake-canv" width="800" height="800"></canvas>
-    <canvas id="apple-canv" width="800" height="800"></canvas>
+    <div id="snake-canv-cont">
+      <canvas id="snake-canv" width="500" height="500"></canvas>
+      <canvas id="apple-canv" width="500" height="500"></canvas>
+      <div id="scores"><span class="score">300</span><span class="highestScore">300</span></div>
+    </div>
+    <div id="game-over-modal">
+      <h1>Game Over</h1>
+      <h3>Your score: <span class="score">300</span></h3>
+      <button id="new-game-button">Play again</button>
+    </div>
   </body>
 </html>
