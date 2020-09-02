@@ -11,11 +11,13 @@
     <div id="snake-canv-cont">
       <canvas id="snake-canv" width="500" height="500"></canvas>
       <canvas id="apple-canv" width="500" height="500"></canvas>
-      <div id="scores"><span class="score">300</span><span class="highestScore">300</span></div>
+      <div id="scores">
+        Score: <span id="score">0</span> &nbsp;&nbsp;&nbsp;Highest score: <span id="highestScore">0</span>
+      </div>
     </div>
     <div id="game-over-modal">
       <h1>Game Over</h1>
-      <h3>Your score: <span class="score">300</span></h3>
+      <h3>Your score: <span id="end-score"></span></h3>
       <button id="new-game-button">Play again</button>
     </div>
   </body>

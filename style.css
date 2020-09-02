@@ -7,7 +7,14 @@ body {
   min-height: 100vh;
   position: relative;
   font-family: 'Roboto', sans-serif;
-  background-color: black;
+  /* background-color: black; */
+  background: url('snake.png') black no-repeat -30% -80%;
+}
+
+@media (min-width: 1500px) {
+  body {
+    background: url('snake.png') black no-repeat;
+  }
 }
 
 canvas {
@@ -53,7 +60,7 @@ button {
   font-size: 2rem;
 }
 
-#score {
+#end-score {
   color: gold;
 }
 
@@ -73,4 +80,20 @@ button {
   text-align: center;
   top: -70px;
   width: 504px;
+}
+
+#scores {
+  position: absolute;
+  right: 0;
+  bottom: -17px;
+  color: lime;
+  right: 3px;
+}
+
+#scores > span {
+}
+
+#score,
+#highestScore {
+  color: gold;
 }

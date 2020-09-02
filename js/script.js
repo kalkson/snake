@@ -18,56 +18,16 @@ const snake = {
 
 const game = {
   score: 0,
-  highestScor: 0,
+  highestScore: 0,
+  keyButtonsInterval: null,
+  newGame: newGame(),
   resetGame: resetGame(),
 };
 
-const zone = {};
+let zone = {};
 
 window.addEventListener('load', function () {
-  const canvas = document.querySelector('#snake-canv');
-  const ctx = canvas.getContext('2d');
-
-  zone.height = canvas.height;
-  zone.width = canvas.width;
-
-  let {
-    currentPosition: { x, y },
-    size,
-  } = snake;
-
-  ctx.fillStyle = 'lime';
-  // ctx.strokeStyle = 'purple';
-
-  for (let i = 0, startingX = x; i < snake.length; i++) {
-    snake.positionMap.push({ x: startingX - 25 * i, y });
-    ctx.fillRect(startingX - 25 * i, y, size - 2, size - 2);
-  }
-
-  snake.bombApple();
-
-  let interval = null;
-
-  document.addEventListener('keydown', (e) => {
-    e.preventDefault();
-
-    const keyName = e.key.slice(5, e.key.length).toUpperCase();
-
-    if (
-      (snake.direction === 'LEFT' && keyName === 'RIGHT') ||
-      (snake.direction === 'RIGHT' && keyName === 'LEFT') ||
-      (snake.direction === 'DOWN' && keyName === 'UP') ||
-      (snake.direction === 'UP' && keyName === 'DOWN') ||
-      (!snake.direction && keyName === 'LEFT')
-    )
-      return;
-
-    snake.direction = keyName;
-
-    snake.drawSnake(snake.direction, keyName, ctx);
-    interval = !interval ? setInterval(() => snake.drawSnake(snake.direction, keyName, ctx), snake.speed) : interval;
-    game.interval = interval;
-  });
+  game.newGame();
 });
 
 function eraseNail() {
@@ -86,8 +46,14 @@ function eraseNail() {
 function hasEatenApple() {
   return function () {
     if (JSON.stringify(this.currentPosition) === JSON.stringify(this.applePoint)) {
-      const ctx_Apple = document.querySelector('#apple-canv').getContext('2d');
-      ctx_Apple.clearRect(this.applePoint.x, this.applePoint.y, this.size, this.size);
+      zone.ctx_Apple.clearRect(this.applePoint.x, this.applePoint.y, this.size, this.size);
+
+      game.score += 10;
+      document.querySelector('#score').innerHTML = game.score;
+      if (game.score > game.highestScore) {
+        document.querySelector('#highestScore').innerHTML = game.score;
+        game.highestScore = game.score;
+      }
 
       this.bombApple();
       this.length++;
@@ -103,6 +69,7 @@ function hasEatenApple() {
 function hasEatenSameself() {
   return function () {
     if (this.positionMap.some((element) => JSON.stringify(element) === JSON.stringify(this.currentPosition))) {
+      document.querySelector('#end-score').innerHTML = game.score;
       game.resetGame();
     }
   };
@@ -163,21 +130,93 @@ function drawSnake() {
   };
 }
 
+function newGame() {
+  return function () {
+    zone = {
+      ctx: document.querySelector('#snake-canv').getContext('2d'),
+      ctx_Apple: document.querySelector('#apple-canv').getContext('2d'),
+      height: document.querySelector('#snake-canv').height,
+      width: document.querySelector('#apple-canv').width,
+    };
+
+    const { ctx } = zone;
+
+    zone.ctx.clearRect(0, 0, zone.width, zone.height);
+    zone.ctx_Apple.clearRect(0, 0, zone.width, zone.height);
+
+    let {
+      currentPosition: { x, y },
+      size,
+    } = snake;
+
+    ctx.fillStyle = 'lime';
+
+    for (let i = 0, startingX = x; i < snake.length; i++) {
+      snake.positionMap.push({ x: startingX - 25 * i, y });
+      ctx.fillRect(startingX - 25 * i, y, size - 2, size - 2);
+    }
+
+    snake.bombApple();
+
+    document.addEventListener('keydown', operate);
+  };
+}
+
 function resetGame() {
   return function () {
-    console.log('asd');
     const modal = document.querySelector('#game-over-modal');
     modal.style.display = 'flex';
     console.log(modal);
 
+    game.highestScore = game.score > game.highestScore ? game.score : game.highestScore;
+
     document.querySelector('#new-game-button').addEventListener('click', () => {
       modal.style.display = modal.style.display === 'flex' ? 'none' : null;
+      snake.length = 4;
+      snake.direction = null;
+      snake.currentPosition = { x: 200, y: 200 };
+      snake.positionMap = [];
+      snake.applePoint = {};
+      game.keyButtonsInterval = null;
+      game.newGame();
+      game.score = 0;
+
+      document.querySelector('#score').innerHTML = 0;
+
+      window.removeEventListener('keydown', listenToKey);
     });
 
-    window.addEventListener('keydown', (e) => {
-      e.keyCode === 13 || e.keyCode === 32 ? document.querySelector('#new-game-button').click() : null;
-    });
+    function listenToKey(e) {
+      if (e.keyCode === 13 || e.keyCode === 32) document.querySelector('#new-game-button').click();
+    }
 
-    clearInterval(game.interval);
+    window.addEventListener('keydown', listenToKey);
+
+    clearInterval(game.keyButtonsInterval);
+    document.removeEventListener('keydown', operate);
   };
+}
+
+function operate(e) {
+  e.preventDefault();
+
+  const keyName = e.key.slice(5, e.key.length).toUpperCase();
+
+  if (
+    (snake.direction === 'LEFT' && keyName === 'RIGHT') ||
+    (snake.direction === 'RIGHT' && keyName === 'LEFT') ||
+    (snake.direction === 'DOWN' && keyName === 'UP') ||
+    (snake.direction === 'UP' && keyName === 'DOWN') ||
+    (!snake.direction && keyName === 'LEFT')
+  )
+    return;
+
+  snake.direction = keyName;
+
+  const { ctx } = zone;
+
+  snake.drawSnake(snake.direction, keyName, ctx);
+  game.keyButtonsInterval = !game.keyButtonsInterval
+    ? setInterval(() => snake.drawSnake(snake.direction, keyName, ctx), snake.speed)
+    : game.keyButtonsInterval;
 }
