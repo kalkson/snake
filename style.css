@@ -4,10 +4,9 @@ body {
   justify-content: center;
   align-items: center;
   overflow-x: hidden;
-  min-height: 100vh;
+  height: 100vh;
   position: relative;
   font-family: 'Roboto', sans-serif;
-  /* background-color: black; */
   background: url('snake.png') black no-repeat -30% -80%;
 }
 
@@ -96,4 +95,18 @@ button {
 #score,
 #highestScore {
   color: gold;
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  color: lime;
+  font-size: 0.9rem;
+  text-align: right;
+  padding: 10px;
+}
+
+footer a {
+  color: #d3d3d3;
 }
