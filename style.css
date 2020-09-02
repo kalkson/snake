@@ -1,0 +1,17 @@
+body {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+body > canvas {
+  position: absolute;
+}
+
+canvas {
+  border: solid 2px black;
+}
