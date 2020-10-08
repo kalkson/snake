@@ -8,11 +8,18 @@ body {
   position: relative;
   font-family: 'Roboto', sans-serif;
   background: url('snake.png') black no-repeat -30% -80%;
+  overflow-y: hidden;
 }
 
 @media (min-width: 1500px) {
   body {
     background: url('snake.png') black no-repeat;
+  }
+}
+
+@media (max-width: 1024px) {
+  body {
+    height: 85vh;
   }
 }
 
@@ -69,6 +76,12 @@ button {
   width: 504px;
   position: relative;
 }
+
+/* @media (max-width: 1024px) {
+  #snake-canv-cont {
+    width: 100%;
+  }
+} */
 
 #snake-canv-cont::before {
   content: 'Snake';

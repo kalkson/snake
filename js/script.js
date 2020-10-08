@@ -1,7 +1,27 @@
+import { detectMobile } from '../checkMobile.js';
+// console.log(detectMobile());
+let mobile;
+
+if (screen.width <= 1024) {
+  const size = 800;
+  document.querySelector('#snake-canv').width = size;
+  document.querySelector('#snake-canv').height = size;
+  document.querySelector('#apple-canv').width = size;
+  document.querySelector('#apple-canv').height = size;
+  document.querySelector('#snake-canv-cont').style.width = size + 'px';
+  document.querySelector('#snake-canv-cont').style.height = size + 'px';
+  document.querySelector('#scores').style.fontSize = '2.5rem';
+
+  mobile = 1;
+}
+
+if (document.cookie.includes('highScore'))
+  document.querySelector('#highestScore').textContent = document.cookie.split(';')[1].split('=')[1];
+
 const snake = {
   length: 4,
-  size: 25,
-  speed: 150,
+  size: mobile ? 50 : 25,
+  speed: mobile ? 200 : 150,
   direction: null,
   currentPosition: {
     x: 200,
@@ -18,10 +38,11 @@ const snake = {
 
 const game = {
   score: 0,
-  highestScore: 0,
+  highestScore: document.cookie.includes('highestScore') ? document.cookie.split(';')[1].split('=')[1] : 0,
   keyButtonsInterval: null,
   newGame: newGame(),
   resetGame: resetGame(),
+  reseted: 0,
 };
 
 let zone = {};
@@ -99,12 +120,16 @@ function drawSnake() {
     switch (direction) {
       case 'LEFT': {
         this.currentPosition['x'] =
-          snake.currentPosition['x'] - snake.size <= -25 ? zone.width - 25 : this.currentPosition['x'] - snake.size;
+          snake.currentPosition['x'] - snake.size <= -this.size
+            ? zone.width - this.size
+            : this.currentPosition['x'] - snake.size;
         break;
       }
       case 'UP': {
         this.currentPosition['y'] =
-          this.currentPosition['y'] - snake.size <= -25 ? zone.height - 25 : this.currentPosition['y'] - snake.size;
+          this.currentPosition['y'] - snake.size <= -this.size
+            ? zone.height - this.size
+            : this.currentPosition['y'] - snake.size;
         break;
       }
       case 'RIGHT': {
@@ -152,23 +177,30 @@ function newGame() {
     ctx.fillStyle = 'lime';
 
     for (let i = 0, startingX = x; i < snake.length; i++) {
-      snake.positionMap.push({ x: startingX - 25 * i, y });
-      ctx.fillRect(startingX - 25 * i, y, size - 2, size - 2);
+      snake.positionMap.push({ x: startingX - size * i, y });
+      ctx.fillRect(startingX - size * i, y, size - 2, size - 2);
     }
 
     snake.bombApple();
 
-    document.addEventListener('keydown', operate);
+    if (!game.reseted) {
+      document.addEventListener('keydown', operate);
+      document.addEventListener('swiped-right', () => swipeHandler('RIGHT'));
+      document.addEventListener('swiped-up', () => swipeHandler('UP'));
+      document.addEventListener('swiped-left', () => swipeHandler('LEFT'));
+      document.addEventListener('swiped-down', () => swipeHandler('DOWN'));
+    }
   };
 }
 
 function resetGame() {
   return function () {
+    game.reseted = 1;
     const modal = document.querySelector('#game-over-modal');
     modal.style.display = 'flex';
-    console.log(modal);
 
     game.highestScore = game.score > game.highestScore ? game.score : game.highestScore;
+    document.cookie = 'highScore=' + game.highestScore + ';expires=Thu, 18 Dec 2100 12:00:00 UTC';
 
     document.querySelector('#new-game-button').addEventListener('click', () => {
       modal.style.display = modal.style.display === 'flex' ? 'none' : null;
@@ -193,8 +225,27 @@ function resetGame() {
     window.addEventListener('keydown', listenToKey);
 
     clearInterval(game.keyButtonsInterval);
-    document.removeEventListener('keydown', operate);
   };
+}
+
+function swipeHandler(keyName) {
+  if (
+    (snake.direction === 'LEFT' && keyName === 'RIGHT') ||
+    (snake.direction === 'RIGHT' && keyName === 'LEFT') ||
+    (snake.direction === 'DOWN' && keyName === 'UP') ||
+    (snake.direction === 'UP' && keyName === 'DOWN') ||
+    (!snake.direction && keyName === 'LEFT')
+  )
+    return;
+
+  snake.direction = keyName;
+
+  const { ctx } = zone;
+
+  snake.drawSnake(snake.direction, keyName, ctx);
+  game.keyButtonsInterval = !game.keyButtonsInterval
+    ? setInterval(() => snake.drawSnake(snake.direction, keyName, ctx), snake.speed)
+    : game.keyButtonsInterval;
 }
 
 function operate(e) {
