@@ -16,7 +16,10 @@ if (screen.width <= 1024) {
 }
 
 if (document.cookie.includes('highScore'))
-  document.querySelector('#highestScore').textContent = document.cookie.split(';')[1].split('=')[1];
+  document.querySelector('#highestScore').textContent = document.cookie
+    .split(';')
+    .filter((cookie) => cookie.includes('highScore'))[0]
+    .split('=')[1];
 
 const snake = {
   length: 4,
@@ -38,7 +41,12 @@ const snake = {
 
 const game = {
   score: 0,
-  highestScore: document.cookie.includes('highestScore') ? document.cookie.split(';')[1].split('=')[1] : 0,
+  highestScore: document.cookie.includes('highestScore')
+    ? document.cookie
+        .split(';')
+        .filter((cookie) => cookie.includes('highScore'))[0]
+        .split('=')[1]
+    : 0,
   keyButtonsInterval: null,
   newGame: newGame(),
   resetGame: resetGame(),
